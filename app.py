@@ -156,7 +156,6 @@ else:
     if calculated_new_cgpa < 2.0:
         st.error("⚠️ **Academic Probation Warning:** Cumulative GPA drops below 2.0 limit. (Article 20)")
     elif calculated_term_gpa >= 3.7:
-        st.balloons()
         st.success("✈️ 🇯🇵 **Excellent Academic Standing:** Eligible for Japanese Partner University programs. (Article 14)")
 
 st.markdown("---")
