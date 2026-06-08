@@ -144,12 +144,14 @@ st.header("📊 Estimation Results Summary")
 if total_term_hours == 0:
     st.info("💡 Please select your course grades to see the simulated GPA results.")
 else:
-    col_res1, col_res2 = st.columns(2)
+    col_res1, col_res2, col_res3 = st.columns(3)
     with col_res1:
         st.metric(label="Semester GPA", value=f"{calculated_term_gpa:.2f}", delta=f"{total_term_hours} CH Current")
     with col_res2:
         cgpa_delta = calculated_new_cgpa - input_cgpa
         st.metric(label="New Cumulative CGPA", value=f"{calculated_new_cgpa:.2f}", delta=f"{cgpa_delta:+.2f} Change")
+    with col_res3:
+        st.metric(label="Total Earned Hours", value=f"{new_total_hours} CH", delta=f"+{total_term_hours} CH Added")
 
     if calculated_new_cgpa < 2.0:
         st.error("⚠️ **Academic Probation Warning:** Cumulative GPA drops below 2.0 limit. (Article 20)")
