@@ -111,14 +111,18 @@ for course, ch in active_courses.items():
         st.write(f"🔹 **{course}** — `{ch} Credit Hours`")
     with col_grade:
         if ch > 0:
-            grade = st.selectbox("Grade:", list(GRADE_POINTS.keys()), index=4, key=f"sim_{target_semester}_{course}")
-            total_term_quality_points += GRADE_POINTS[grade] * ch
-            total_term_hours += ch
+            grade_options = ["Not Registered"] + list(GRADE_POINTS.keys())
+            grade = st.selectbox("Grade:", grade_options, index=0, key=f"sim_{target_semester}_{course}")
+            
+            if grade != "Not Registered":
+                total_term_quality_points += GRADE_POINTS[grade] * ch
+                total_term_hours += ch
         else:
             st.write("*(Pass/Fail)*")
+            grade = "Not Registered"
             
     with col_repeat:
-        if ch > 0:
+        if ch > 0 and grade != "Not Registered":
             is_repeat = st.checkbox("Repeat?", key=f"rep_{target_semester}_{course}")
             if is_repeat:
                 old_grade = st.selectbox("Old Grade:", list(GRADE_POINTS.keys()), index=11, key=f"old_{target_semester}_{course}")
@@ -132,23 +136,26 @@ adjusted_prior_hours = input_hours - deduct_prior_hours
 
 new_total_quality_points = prior_total_points + total_term_quality_points
 new_total_hours = adjusted_prior_hours + total_term_hours
-calculated_new_cgpa = new_total_quality_points / new_total_hours if new_total_hours > 0 else 0.0
+calculated_new_cgpa = new_total_quality_points / new_total_hours if new_total_hours > 0 else input_cgpa
 
 st.markdown("---")
 st.header("📊 Estimation Results Summary")
 
-col_res1, col_res2 = st.columns(2)
-with col_res1:
-    st.metric(label="Semester GPA", value=f"{calculated_term_gpa:.2f}", delta=f"{total_term_hours} CH Current")
-with col_res2:
-    cgpa_delta = calculated_new_cgpa - input_cgpa
-    st.metric(label="New Cumulative CGPA", value=f"{calculated_new_cgpa:.2f}", delta=f"{cgpa_delta:+.2f} Change")
+if total_term_hours == 0:
+    st.info("💡 Please select your course grades to see the simulated GPA results.")
+else:
+    col_res1, col_res2 = st.columns(2)
+    with col_res1:
+        st.metric(label="Semester GPA", value=f"{calculated_term_gpa:.2f}", delta=f"{total_term_hours} CH Current")
+    with col_res2:
+        cgpa_delta = calculated_new_cgpa - input_cgpa
+        st.metric(label="New Cumulative CGPA", value=f"{calculated_new_cgpa:.2f}", delta=f"{cgpa_delta:+.2f} Change")
 
-if calculated_new_cgpa < 2.0:
-    st.error("⚠️ **Academic Probation Warning:** Cumulative GPA drops below 2.0 limit. (Article 20)")
-elif calculated_term_gpa >= 3.7:
-    st.balloons()
-    st.success("✈️ 🇯🇵 **Excellent Academic Standing:** Eligible for Japanese Partner University programs. (Article 14)")
+    if calculated_new_cgpa < 2.0:
+        st.error("⚠️ **Academic Probation Warning:** Cumulative GPA drops below 2.0 limit. (Article 20)")
+    elif calculated_term_gpa >= 3.7:
+        st.balloons()
+        st.success("✈️ 🇯🇵 **Excellent Academic Standing:** Eligible for Japanese Partner University programs. (Article 14)")
 
 st.markdown("---")
 st.caption("🔒 **Privacy Note:** This simulator runs entirely in your browser. No academic data is collected or stored on any server.")
